@@ -7,9 +7,19 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 class MockFclFlutterPlatform
     with MockPlatformInterfaceMixin
     implements FclFlutterPlatform {
+  @override
+  Future<String?> simpleLogin() => Future.value('42');
 
   @override
-  Future<String?> getPlatformVersion() => Future.value('42');
+  Future<String?> accountProofLogin(String appIdentifier) => Future.value('42');
+
+  @override
+  Future<void> initFCL(String bloctoAppId, {bool useTestNet = false}) async {
+    await Future.delayed(const Duration(seconds: 1));
+  }
+
+  @override
+  Future<bool?> verifyAccountProof(String appIdentifier) => Future.value(true);
 }
 
 void main() {
@@ -24,6 +34,6 @@ void main() {
     MockFclFlutterPlatform fakePlatform = MockFclFlutterPlatform();
     FclFlutterPlatform.instance = fakePlatform;
 
-    expect(await fclFlutterPlugin.getPlatformVersion(), '42');
+    expect(await fclFlutterPlugin.simpleLogin(), '42');
   });
 }
