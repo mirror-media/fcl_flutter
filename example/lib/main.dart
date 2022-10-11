@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:fcl_flutter/fcl_flutter.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
@@ -16,35 +17,21 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String _platformVersion = 'Unknown';
+  String _accountAddress = 'Unknown';
+  bool _isVerified = false;
   final _fclFlutterPlugin = FclFlutter();
 
   @override
   void initState() {
     super.initState();
-    initPlatformState();
+    initialize();
   }
 
-  // Platform messages are asynchronous, so we initialize in an async method.
-  Future<void> initPlatformState() async {
-    String platformVersion;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    // We also handle the message potentially returning null.
-    try {
-      platformVersion =
-          await _fclFlutterPlugin.getPlatformVersion() ?? 'Unknown platform version';
-    } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
-    }
-
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    if (!mounted) return;
-
-    setState(() {
-      _platformVersion = platformVersion;
-    });
+  Future<void> initialize() async {
+    await _fclFlutterPlugin.initFCL(
+      'b56af110-144a-435e-be9b-d0123bbaec6a',
+      useTestNet: true,
+    );
   }
 
   @override
@@ -55,9 +42,87 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Plugin example app'),
         ),
         body: Center(
-          child: Text('Running on: $_platformVersion\n'),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Account address: $_accountAddress',
+                textAlign: TextAlign.center,
+              ),
+              Text(
+                'AccountProof verify: $_isVerified',
+                textAlign: TextAlign.center,
+              ),
+              Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 10,
+                children: [
+                  ElevatedButton(
+                    onPressed: () async => await simpleLogin(),
+                    child: const Text('Simple login'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () async => await accountProofLogin(),
+                    child: const Text('AccountProof login'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () async => await verifyAccountProof(),
+                    child: const Text('Verify accountProof'),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  Future<void> simpleLogin() async {
+    String accountAddress;
+
+    try {
+      accountAddress = await _fclFlutterPlugin.simpleLogin() ?? 'Loading';
+    } on PlatformException {
+      accountAddress = 'Failed to get account address.';
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      _accountAddress = accountAddress;
+    });
+  }
+
+  Future<void> accountProofLogin() async {
+    String accountAddress;
+
+    try {
+      accountAddress =
+          await _fclFlutterPlugin.accountProofLogin('samTest') ?? 'Loading';
+    } on PlatformException {
+      accountAddress = 'Failed to get account address.';
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      _accountAddress = accountAddress;
+    });
+  }
+
+  Future<void> verifyAccountProof() async {
+    bool isVerify = false;
+    try {
+      isVerify = await _fclFlutterPlugin.verifyAccountProof('samTest') ?? false;
+    } on PlatformException {
+      isVerify = false;
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      _isVerified = isVerify;
+    });
   }
 }
