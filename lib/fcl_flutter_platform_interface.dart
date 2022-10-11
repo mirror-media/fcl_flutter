@@ -23,7 +23,19 @@ abstract class FclFlutterPlatform extends PlatformInterface {
     _instance = instance;
   }
 
-  Future<String?> getPlatformVersion() {
-    throw UnimplementedError('platformVersion() has not been implemented.');
+  Future<void> initFCL(String bloctoAppId, {bool useTestNet = false}) {
+    throw UnimplementedError('initFCL() has not been implemented.');
+  }
+
+  Future<String?> simpleLogin() {
+    throw UnimplementedError('simpleLogin() has not been implemented.');
+  }
+
+  Future<String?> accountProofLogin(String appIdentifier) {
+    throw UnimplementedError('accountProofLogin() has not been implemented.');
+  }
+
+  Future<bool?> verifyAccountProof(String appIdentifier) {
+    throw UnimplementedError('verifyAccountProof() has not been implemented.');
   }
 }

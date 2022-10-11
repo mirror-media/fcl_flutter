@@ -10,8 +10,25 @@ class MethodChannelFclFlutter extends FclFlutterPlatform {
   final methodChannel = const MethodChannel('fcl_flutter');
 
   @override
-  Future<String?> getPlatformVersion() async {
-    final version = await methodChannel.invokeMethod<String>('getPlatformVersion');
-    return version;
+  Future<void> initFCL(String bloctoAppId, {bool useTestNet = false}) async {
+    await methodChannel.invokeMethod<void>(
+        'initFCL', {'bloctoAppId': bloctoAppId, 'useTestNet': useTestNet});
+  }
+
+  @override
+  Future<String?> simpleLogin() async {
+    return await methodChannel.invokeMethod<String?>('simpleLogin');
+  }
+
+  @override
+  Future<String?> accountProofLogin(String appIdentifier) async {
+    return await methodChannel.invokeMethod<String?>(
+        'accountProofLogin', {'appIdentifier': appIdentifier});
+  }
+
+  @override
+  Future<bool?> verifyAccountProof(String appIdentifier) async {
+    return await methodChannel.invokeMethod<bool>(
+        'verifyAccountProof', {'appIdentifier': appIdentifier});
   }
 }
