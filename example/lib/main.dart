@@ -69,6 +69,15 @@ class _MyAppState extends State<MyApp> {
                     onPressed: () async => await verifyAccountProof(),
                     child: const Text('Verify accountProof'),
                   ),
+                  ElevatedButton(
+                    onPressed: () async => await getAddress(),
+                    child: const Text('Get account address'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () async =>
+                        await _fclFlutterPlugin.unauthenticate(),
+                    child: const Text('Unauthenticate'),
+                  ),
                 ],
               ),
             ],
@@ -123,6 +132,23 @@ class _MyAppState extends State<MyApp> {
 
     setState(() {
       _isVerified = isVerify;
+    });
+  }
+
+  Future<void> getAddress() async {
+    String accountAddress;
+
+    try {
+      accountAddress = await _fclFlutterPlugin.getAddress() ??
+          'Failed to get account address.';
+    } on PlatformException {
+      accountAddress = 'Failed to get account address.';
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      _accountAddress = accountAddress;
     });
   }
 }
