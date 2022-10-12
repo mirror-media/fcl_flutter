@@ -26,4 +26,14 @@ class FclFlutter {
   Future<bool?> verifyAccountProof(String appIdentifier) {
     return FclFlutterPlatform.instance.verifyAccountProof(appIdentifier);
   }
+
+  /// Get account address after login, return null if not login
+  Future<String?> getAddress() {
+    return FclFlutterPlatform.instance.getAddress();
+  }
+
+  /// Unauthenticate current user
+  Future<void> unauthenticate() {
+    return FclFlutterPlatform.instance.unauthenticate();
+  }
 }

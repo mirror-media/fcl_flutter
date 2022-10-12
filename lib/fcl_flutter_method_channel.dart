@@ -31,4 +31,14 @@ class MethodChannelFclFlutter extends FclFlutterPlatform {
     return await methodChannel.invokeMethod<bool>(
         'verifyAccountProof', {'appIdentifier': appIdentifier});
   }
+
+  @override
+  Future<String?> getAddress() async {
+    return await methodChannel.invokeMethod<String?>('getAddress');
+  }
+
+  @override
+  Future<void> unauthenticate() async {
+    await methodChannel.invokeMethod<void>('unauthenticate');
+  }
 }

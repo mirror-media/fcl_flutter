@@ -38,4 +38,12 @@ abstract class FclFlutterPlatform extends PlatformInterface {
   Future<bool?> verifyAccountProof(String appIdentifier) {
     throw UnimplementedError('verifyAccountProof() has not been implemented.');
   }
+
+  Future<String?> getAddress() {
+    throw UnimplementedError('getAddress() has not been implemented.');
+  }
+
+  Future<void> unauthenticate() {
+    throw UnimplementedError('unauthenticate() has not been implemented.');
+  }
 }

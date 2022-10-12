@@ -20,6 +20,14 @@ class MockFclFlutterPlatform
 
   @override
   Future<bool?> verifyAccountProof(String appIdentifier) => Future.value(true);
+
+  @override
+  Future<String?> getAddress() async => 'efwfet477747';
+
+  @override
+  Future<void> unauthenticate() async {
+    await Future.delayed(const Duration(seconds: 1));
+  }
 }
 
 void main() {
