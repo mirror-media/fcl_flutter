@@ -77,6 +77,11 @@ class FclFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
             result.error("VerifyAccountProofFailed", "Verify accountProof failed",null)
           }
         }
+        "getAddress" -> result.success(Fcl.currentUser?.address)
+        "unauthenticate" -> {
+          Fcl.unauthenticate()
+          result.success("Unauthenticate success")
+        }
         else -> result.notImplemented()
       }
     }
