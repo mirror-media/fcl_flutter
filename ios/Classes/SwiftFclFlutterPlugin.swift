@@ -58,6 +58,12 @@ public class SwiftFclFlutterPlugin: NSObject, FlutterPlugin {
               print("AccountProofData is nil")
               result(FlutterError.init(code: "NoAccountProofData", message: "AccountProofData is nil", details: nil))
           }
+          
+      case "getAddress":
+          result(fcl.currentUser?.address.hexStringWithPrefix)
+      case "unauthenticate":
+          fcl.unauthenticate()
+          result("Unauthenticate success")
 
           
         default:
