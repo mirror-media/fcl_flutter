@@ -110,6 +110,8 @@ This make your app know whether user install Blocto app.
 - Open your projects's `AppDelegate.swift`, and add the following.
 This make Blocto can open your app after user authorized in Blocto app.
 ```swift
+import FCL_SDK
+
 override func application(
     _ app: UIApplication,
         open url: URL,
