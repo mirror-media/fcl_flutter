@@ -60,6 +60,7 @@ allprojects {
     ...
 </application>
 ```
+You may get INSTALL FAILED CONFLICTING PROVIDER error due to provider's authorities, you can change it to `${applicationId}.com.portto.fcl.context` to prevent error.
 <br>
 
 - Add themes for package's webview activity.
@@ -85,6 +86,16 @@ In ``(your project)/android/app/src/main/res/values-night/styles.xml``
     </style>
     ...
 </resources>
+```
+<br>
+
+If you get duplicate class error when building your project, you can add below line to your project's `app/build.gradle`
+```groovy
+dependencies {
+    ...
+    configurations.implementation.exclude(group: 'com.google.firebase', module: 'protolite-well-known-types')
+    configurations.implementation.exclude(group: 'com.google.protobuf', module: 'protobuf-javalite') 
+}
 ```
 
 <br>
