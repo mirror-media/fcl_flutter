@@ -49,4 +49,6 @@ android {
 
 dependencies {
     implementation "com.portto.fcl:fcl:0.1.0"
+    configurations.implementation.exclude(group: 'com.google.firebase', module: 'protolite-well-known-types')
+    configurations.implementation.exclude(group: 'com.google.protobuf', module: 'protobuf-javalite') 
 }
