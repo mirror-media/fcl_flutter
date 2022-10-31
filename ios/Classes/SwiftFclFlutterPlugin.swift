@@ -64,6 +64,19 @@ public class SwiftFclFlutterPlugin: NSObject, FlutterPlugin {
       case "unauthenticate":
           fcl.unauthenticate()
           result("Unauthenticate success")
+      case "getAccountDetails":
+          let arguments = call.arguments as! [String: Any]
+          let address = arguments["address"] as! String
+          Task{
+              let account = await getAccountDetails(address: address)
+              if(account != nil){
+                  result([
+                    "address":account!.address.hexStringWithPrefix,
+                    "balance":String(account!.balance)])
+              }else{
+                  result(FlutterError.init(code: "GetAccountDetailFailed", message: "Get account detail error", details: nil))
+              }
+          }
 
           
         default:
@@ -150,6 +163,16 @@ public class SwiftFclFlutterPlugin: NSObject, FlutterPlugin {
             return valid
         } catch {
             print("Verify accountProof error")
+            print(error)
+            return nil
+        }
+    }
+    
+    private func getAccountDetails(address: String) async -> Account? {
+        do{
+            return try await fcl.getAccount(address: address)
+        }catch{
+            print("Get account detail error")
             print(error)
             return nil
         }
