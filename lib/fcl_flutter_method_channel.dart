@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import 'fcl_flutter_platform_interface.dart';
+import 'model/flow_account.dart';
 
 /// An implementation of [FclFlutterPlatform] that uses method channels.
 class MethodChannelFclFlutter extends FclFlutterPlatform {
@@ -40,5 +41,16 @@ class MethodChannelFclFlutter extends FclFlutterPlatform {
   @override
   Future<void> unauthenticate() async {
     await methodChannel.invokeMethod<void>('unauthenticate');
+  }
+
+  @override
+  Future<FlowAccount> getAccountDetails(String address) async {
+    var result = await methodChannel
+        .invokeMethod('getAccountDetails', {'address': address});
+    if (result == null) {
+      throw Exception("Failed to get account details");
+    } else {
+      return FlowAccount.fromMap(result);
+    }
   }
 }

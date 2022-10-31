@@ -1,4 +1,5 @@
 import 'fcl_flutter_platform_interface.dart';
+import 'model/flow_account.dart';
 
 class FclFlutter {
   /// Initial flow client library <br>
@@ -35,5 +36,10 @@ class FclFlutter {
   /// Unauthenticate current user
   Future<void> unauthenticate() {
     return FclFlutterPlatform.instance.unauthenticate();
+  }
+
+  /// Retrieve account details by account address
+  Future<FlowAccount> getAccountDetails(String address) {
+    return FclFlutterPlatform.instance.getAccountDetails(address);
   }
 }

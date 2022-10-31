@@ -1,6 +1,7 @@
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'fcl_flutter_method_channel.dart';
+import 'model/flow_account.dart';
 
 abstract class FclFlutterPlatform extends PlatformInterface {
   /// Constructs a FclFlutterPlatform.
@@ -45,5 +46,9 @@ abstract class FclFlutterPlatform extends PlatformInterface {
 
   Future<void> unauthenticate() {
     throw UnimplementedError('unauthenticate() has not been implemented.');
+  }
+
+  Future<FlowAccount> getAccountDetails(String address) {
+    throw UnimplementedError('getAccountDetails() has not been implemented.');
   }
 }
