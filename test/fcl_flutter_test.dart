@@ -1,3 +1,5 @@
+import 'package:decimal/decimal.dart';
+import 'package:fcl_flutter/model/flow_account.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fcl_flutter/fcl_flutter.dart';
 import 'package:fcl_flutter/fcl_flutter_platform_interface.dart';
@@ -27,6 +29,11 @@ class MockFclFlutterPlatform
   @override
   Future<void> unauthenticate() async {
     await Future.delayed(const Duration(seconds: 1));
+  }
+
+  @override
+  Future<FlowAccount> getAccountDetails(String address) async {
+    return FlowAccount(address: address, balance: Decimal.parse('0.001'));
   }
 }
 
