@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-
 import 'package:flutter/services.dart';
 import 'package:fcl_flutter/fcl_flutter.dart';
 
@@ -17,9 +16,11 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String _accountAddress = 'Unknown';
+  String? _accountAddress;
   bool _isVerified = false;
   final _fclFlutterPlugin = FclFlutter();
+  String? _accountBalance = 'Unknown';
+  String _alert = "";
 
   @override
   void initState() {
@@ -39,44 +40,75 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Plugin example app'),
+          title: const Text('FCL_Flutter'),
         ),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                'Account address: $_accountAddress',
-                textAlign: TextAlign.center,
-              ),
-              Text(
-                'AccountProof verify: $_isVerified',
-                textAlign: TextAlign.center,
+              if (_alert.isNotEmpty)
+                Text(
+                  _alert,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: Colors.red),
+                ),
+              if (_accountAddress == null)
+                const Text(
+                  'Please login',
+                  textAlign: TextAlign.center,
+                )
+              else ...[
+                Text(
+                  'Account address: $_accountAddress',
+                  textAlign: TextAlign.center,
+                ),
+                Text(
+                  'AccountProof verify: $_isVerified',
+                  textAlign: TextAlign.center,
+                ),
+                Text(
+                  'Balance: $_accountBalance',
+                  textAlign: TextAlign.center,
+                ),
+              ],
+              const SizedBox(
+                height: 50,
               ),
               Wrap(
                 alignment: WrapAlignment.center,
                 spacing: 10,
                 children: [
-                  ElevatedButton(
-                    onPressed: () async => await simpleLogin(),
-                    child: const Text('Simple login'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () async => await accountProofLogin(),
-                    child: const Text('AccountProof login'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () async => await verifyAccountProof(),
-                    child: const Text('Verify accountProof'),
-                  ),
+                  if (_accountAddress == null) ...[
+                    ElevatedButton(
+                      onPressed: () async => await simpleLogin(),
+                      child: const Text('Simple login'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () async => await accountProofLogin(),
+                      child: const Text('AccountProof login'),
+                    ),
+                  ] else ...[
+                    ElevatedButton(
+                      onPressed: () async => await verifyAccountProof(),
+                      child: const Text('Verify accountProof'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () async {
+                        await _fclFlutterPlugin.unauthenticate();
+                        setState(() {
+                          _accountAddress = null;
+                        });
+                      },
+                      child: const Text('Unauthenticate'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () async => await getAccountBalance(),
+                      child: const Text('Get account balance'),
+                    ),
+                  ],
                   ElevatedButton(
                     onPressed: () async => await getAddress(),
                     child: const Text('Get account address'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () async =>
-                        await _fclFlutterPlugin.unauthenticate(),
-                    child: const Text('Unauthenticate'),
                   ),
                 ],
               ),
@@ -88,12 +120,13 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> simpleLogin() async {
-    String accountAddress;
+    String? accountAddress;
 
     try {
-      accountAddress = await _fclFlutterPlugin.simpleLogin() ?? 'Loading';
+      accountAddress = await _fclFlutterPlugin.simpleLogin();
+      _alert = '';
     } on PlatformException {
-      accountAddress = 'Failed to get account address.';
+      _alert = 'Failed to get account address.';
     }
 
     if (!mounted) return;
@@ -104,13 +137,13 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> accountProofLogin() async {
-    String accountAddress;
+    String? accountAddress;
 
     try {
-      accountAddress =
-          await _fclFlutterPlugin.accountProofLogin('samTest') ?? 'Loading';
+      accountAddress = await _fclFlutterPlugin.accountProofLogin('samTest');
+      _alert = '';
     } on PlatformException {
-      accountAddress = 'Failed to get account address.';
+      _alert = 'Failed to get account address.';
     }
 
     if (!mounted) return;
@@ -136,19 +169,37 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> getAddress() async {
-    String accountAddress;
+    String? accountAddress;
 
     try {
-      accountAddress = await _fclFlutterPlugin.getAddress() ??
-          'Failed to get account address.';
+      accountAddress = await _fclFlutterPlugin.getAddress();
+      _alert = '';
     } on PlatformException {
-      accountAddress = 'Failed to get account address.';
+      _alert = 'Failed to get account address.';
     }
 
     if (!mounted) return;
 
     setState(() {
       _accountAddress = accountAddress;
+    });
+  }
+
+  Future<void> getAccountBalance() async {
+    String? balance;
+    try {
+      var accountDetails =
+          await _fclFlutterPlugin.getAccountDetails(_accountAddress!);
+      balance = accountDetails.balance.toString();
+      _alert = '';
+    } on PlatformException {
+      _alert = 'Failed to get account details.';
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      _accountBalance = balance;
     });
   }
 }
