@@ -5,6 +5,7 @@ package com.mirrormedia.fcl_flutter
 import android.app.Activity
 import android.app.Dialog
 import android.content.Context
+import com.nftco.flow.sdk.FlowAccount
 import com.nftco.flow.sdk.bytesToHex
 import com.portto.fcl.Fcl
 import com.portto.fcl.config.AppDetail
@@ -12,6 +13,7 @@ import com.portto.fcl.config.Config
 import com.portto.fcl.config.Network
 import com.portto.fcl.model.authn.AccountProofResolvedData
 import com.portto.fcl.provider.blocto.Blocto
+import com.portto.fcl.utils.AppUtils
 import io.flutter.Log
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
@@ -82,6 +84,19 @@ class FclFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
           Fcl.unauthenticate()
           result.success("Unauthenticate success")
         }
+        "getAccountDetails" ->{
+          val flowAccount: FlowAccount? = getAccountDetails(call.argument<String>("address")!!)
+          if(flowAccount == null){
+            result.error("GetAccountDetailFailed","Get account detail error",null)
+          }else{
+            result.success(
+              mapOf(
+                "address" to flowAccount.address.toString(),
+                "balance" to flowAccount.balance.toString(),
+              )
+            )
+          }
+        }
         else -> result.notImplemented()
       }
     }
@@ -144,9 +159,6 @@ class FclFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
   }
 
   private suspend fun verifyAccountProof(appIdentifier: String): Boolean?{
-
-
-
     val isValid = try{
       // accountProofData is mandatory if you wish to verify account proof
       val userAccountProofData = Fcl.currentUser?.accountProofData!!
@@ -160,6 +172,15 @@ class FclFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
     }
 
     return isValid
+  }
+
+  private suspend fun getAccountDetails(address: String): FlowAccount?{
+    return try {
+      AppUtils.getAccount(address)
+    }catch (e: Exception){
+      print(e.toString())
+      null
+    }
   }
 
   override fun onAttachedToActivity(binding: ActivityPluginBinding) {
