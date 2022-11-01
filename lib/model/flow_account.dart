@@ -17,6 +17,8 @@ class FlowAccount {
   });
 
   factory FlowAccount.fromMap(dynamic source) {
+    /// In Android, balance is BigDecimal, so we pass String back is correctly, just parse to dart Decimal
+    /// In iOS, balance is Uint64, so we need to divided by 100000000
     Decimal balance = Decimal.parse(source['balance']);
     if (Platform.isIOS) {
       balance = (balance / Decimal.parse('100000000')).toDecimal();
