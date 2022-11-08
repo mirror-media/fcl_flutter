@@ -53,4 +53,29 @@ class MethodChannelFclFlutter extends FclFlutterPlatform {
       return FlowAccount.fromMap(result);
     }
   }
+
+  @override
+  Future<String?> query(
+      {required String script, List<String>? arguments}) async {
+    return await methodChannel.invokeMethod<String>(
+      'query',
+      {
+        'script': script,
+        'arguments': arguments,
+      },
+    );
+  }
+
+  @override
+  Future<String?> mutate(
+      {required String script, List<String>? arguments, int? limit}) async {
+    return await methodChannel.invokeMethod<String>(
+      'mutate',
+      {
+        'script': script,
+        'arguments': arguments,
+        'limit': limit,
+      },
+    );
+  }
 }

@@ -3,10 +3,12 @@ package com.mirrormedia.fcl_flutter
 
 
 import android.app.Activity
-import android.app.Dialog
 import android.content.Context
 import com.nftco.flow.sdk.FlowAccount
+import com.nftco.flow.sdk.FlowAddress
+import com.nftco.flow.sdk.FlowArgument
 import com.nftco.flow.sdk.bytesToHex
+import com.nftco.flow.sdk.cadence.Field
 import com.portto.fcl.Fcl
 import com.portto.fcl.config.AppDetail
 import com.portto.fcl.config.Config
@@ -25,7 +27,6 @@ import io.flutter.plugin.common.MethodChannel.Result
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlin.random.Random
 
 
@@ -95,6 +96,22 @@ class FclFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
                 "balance" to flowAccount.balance.toString(),
               )
             )
+          }
+        }
+        "query" ->{
+          val queryResult = query(call.argument<String>("script")!!,call.argument<List<String>>("arguments"))
+          if(queryResult == null){
+            result.error("QueryFailed","FCL query error",null)
+          }else{
+            result.success(queryResult)
+          }
+        }
+        "mutate" ->{
+          val mutationResult = mutate(call.argument<String>("script")!!,call.argument<List<String>>("arguments"),call.argument<Int>("limit"))
+          if(mutationResult == null){
+            result.error("MutateFailed","FCL mutate error",null)
+          }else{
+            result.success(mutationResult)
           }
         }
         else -> result.notImplemented()
@@ -180,6 +197,61 @@ class FclFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
     }catch (e: Exception){
       print(e.toString())
       null
+    }
+  }
+
+  private suspend fun query(script: String, arguments: List<String>?): String?{
+    val argumentsList = if (arguments == null){
+      null
+    }else{
+      val tempList = mutableListOf<Field<*>>()
+      for(item in arguments){
+        tempList.add(FlowArgument(item.toByteArray()).jsonCadence)
+      }
+      tempList.toList()
+    }
+    return when (val result = Fcl.query(cadence = script,arguments = argumentsList)) {
+      is com.portto.fcl.model.Result.Success -> {
+        result.value.toString()
+      }
+      is com.portto.fcl.model.Result.Failure -> {
+        print("Query failed")
+        null
+      }
+    }
+  }
+
+  private suspend fun mutate(script: String, arguments: List<String>?, limit: Int?): String?{
+    if(Fcl.currentUser == null){
+      print("Please login first!!")
+      return null
+    }
+
+    val argumentsList = if (arguments == null){
+      null
+    }else{
+      val tempList = mutableListOf<FlowArgument>()
+      for(item in arguments){
+        tempList.add(FlowArgument(item.toByteArray()))
+      }
+      tempList.toList()
+    }
+
+    val gasLimit = limit?.toULong() ?: 1000u
+
+    return when (val result = Fcl.mutate(
+      cadence = script,
+      arguments = argumentsList,
+      limit = gasLimit,
+      authorizers = listOf(FlowAddress(Fcl.currentUser!!.address)))
+    ) {
+      is com.portto.fcl.model.Result.Success -> {
+        result.value
+      }
+      is com.portto.fcl.model.Result.Failure -> {
+        print("Mutation failed")
+        null
+      }
     }
   }
 

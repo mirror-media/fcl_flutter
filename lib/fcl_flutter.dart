@@ -42,4 +42,26 @@ class FclFlutter {
   Future<FlowAccount> getAccountDetails(String address) {
     return FclFlutterPlatform.instance.getAccountDetails(address);
   }
+
+  /// Send arbitrary Cadence scripts to the chain and receive decoded values <br>
+  /// Return Cadence response Value from Flow contract String <br>
+  /// Can be performed without user login <br>
+  /// - script: Cadence script used to query Flow <br>
+  /// - arguments: A list of [Json-Candence data](https://developers.flow.com/cadence/json-cadence-spec) String passed to cadence query <br>
+  Future<String?> query({required String script, List<String>? arguments}) {
+    return FclFlutterPlatform.instance
+        .query(script: script, arguments: arguments);
+  }
+
+  /// Use transaction to send Cadence code with specify authorizer to perform permanently state changes on chain <br>
+  /// Return the transaction ID <br>
+  /// **Must be performed after user logged in** <br>
+  /// - script: Cadence script used to mutate Flow <br>
+  /// - arguments: A list of [Json-Candence data](https://developers.flow.com/cadence/json-cadence-spec) String passed to cadence transaction <br>
+  /// - limit: Gas limit for the computation of the transaction
+  Future<String?> mutate(
+      {required String script, List<String>? arguments, int? limit}) {
+    return FclFlutterPlatform.instance
+        .mutate(script: script, arguments: arguments, limit: limit);
+  }
 }

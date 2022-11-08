@@ -77,7 +77,31 @@ public class SwiftFclFlutterPlugin: NSObject, FlutterPlugin {
                   result(FlutterError.init(code: "GetAccountDetailFailed", message: "Get account detail error", details: nil))
               }
           }
-
+      case "query":
+          let flutterArguments = call.arguments as! [String: Any]
+          let script = flutterArguments["script"] as! String
+          let arguments = flutterArguments["arguments"] as? Array<String>
+          Task{
+              let queryResult = await query(script: script, arguments: arguments)
+              if(queryResult != nil){
+                  result(queryResult)
+              }else{
+                  result(FlutterError.init(code: "QueryFailed", message: "FCL query error", details: nil))
+              }
+          }
+      case "mutate":
+          let flutterArguments = call.arguments as! [String: Any]
+          let script = flutterArguments["script"] as! String
+          let arguments = flutterArguments["arguments"] as? Array<String>
+          let limit = flutterArguments["limit"] as? Int
+          Task{
+              let mutateResult = await mutate(script: script, arguments: arguments, limit: limit)
+              if(mutateResult != nil){
+                  result(mutateResult)
+              }else{
+                  result(FlutterError.init(code: "MutateFailed", message: "FCL mutate error", details: nil))
+              }
+          }
           
         default:
           result(FlutterMethodNotImplemented)
@@ -173,6 +197,54 @@ public class SwiftFclFlutterPlugin: NSObject, FlutterPlugin {
             return try await fcl.getAccount(address: address)
         }catch{
             print("Get account detail error")
+            print(error)
+            return nil
+        }
+    }
+    
+    private func query(script: String, arguments: Array<String>?) async -> String?{
+        do {
+            var argumentArray: [Cadence.Argument] = []
+            if(arguments != nil){
+                for item in arguments!{
+                    argumentArray.append(try JSONDecoder().decode(Cadence.Argument.self,from: item.data(using: .utf8)!))
+                }
+            }
+            
+            let result = try await fcl.query(script: script, arguments: argumentArray)
+            
+            return result.value.description
+        } catch {
+            print("FCL query error")
+            print(error)
+            return nil
+        }
+    }
+    
+    private func mutate(script: String, arguments: Array<String>?, limit: Int?) async -> String?{
+        do {
+            guard let userWalletAddress = fcl.currentUser?.address else {
+                // handle error
+                print("Please login first!!")
+                return nil
+            }
+            var argumentArray: [Cadence.Argument] = []
+            if(arguments != nil){
+                for item in arguments!{
+                    argumentArray.append(try JSONDecoder().decode(Cadence.Argument.self,from: item.data(using: .utf8)!))
+                }
+            }
+            
+            let txHsh = try await fcl.mutate(
+                cadence: script,
+                arguments: argumentArray,
+                limit: UInt64(limit ?? 1000),
+                authorizers: [userWalletAddress]
+            )
+            
+            return txHsh.description
+        } catch {
+            print("FCL mutate error")
             print(error)
             return nil
         }

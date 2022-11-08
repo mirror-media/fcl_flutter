@@ -51,4 +51,13 @@ abstract class FclFlutterPlatform extends PlatformInterface {
   Future<FlowAccount> getAccountDetails(String address) {
     throw UnimplementedError('getAccountDetails() has not been implemented.');
   }
+
+  Future<String?> query({required String script, List<String>? arguments}) {
+    throw UnimplementedError('query() has not been implemented.');
+  }
+
+  Future<String?> mutate(
+      {required String script, List<String>? arguments, int? limit}) {
+    throw UnimplementedError('mutate() has not been implemented.');
+  }
 }
