@@ -35,6 +35,18 @@ class MockFclFlutterPlatform
   Future<FlowAccount> getAccountDetails(String address) async {
     return FlowAccount(address: address, balance: Decimal.parse('0.001'));
   }
+
+  @override
+  Future<String?> query(
+      {required String script, List<String>? arguments}) async {
+    return 'Query success';
+  }
+
+  @override
+  Future<String?> mutate(
+      {required String script, List<String>? arguments, int? limit}) async {
+    return 'Mutate success';
+  }
 }
 
 void main() {
