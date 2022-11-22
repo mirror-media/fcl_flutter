@@ -35,7 +35,7 @@ class _MyAppState extends State<MyApp> {
 
   Future<void> initialize() async {
     await _fclFlutterPlugin.initFCL(
-      'b56af110-144a-435e-be9b-d0123bbaec6a',
+      'Paste your blocto app id',
       useTestNet: true,
     );
   }
